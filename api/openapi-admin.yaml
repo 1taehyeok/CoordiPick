@@ -1,0 +1,147 @@
+openapi: 3.1.0
+info:
+  title: CoordiPick Admin API
+  version: 0.1.0
+servers:
+  - url: /api/v1
+security:
+  - bearerAuth: []
+tags:
+  - name: admin-items
+  - name: admin-outfits
+  - name: admin-settings
+  - name: admin-dashboard
+paths:
+  /admin/items:
+    get:
+      tags: [admin-items]
+      operationId: listItems
+      summary: List items
+      responses:
+        '200':
+          description: ok
+    post:
+      tags: [admin-items]
+      operationId: createItem
+      summary: Create item
+      responses:
+        '201':
+          description: created
+  /admin/items/{item_id}:
+    patch:
+      tags: [admin-items]
+      operationId: updateItem
+      summary: Update item
+      parameters:
+        - in: path
+          name: item_id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: ok
+    delete:
+      tags: [admin-items]
+      operationId: deleteItem
+      summary: Delete item
+      parameters:
+        - in: path
+          name: item_id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: deleted
+
+  /admin/outfits:
+    get:
+      tags: [admin-outfits]
+      operationId: listOutfits
+      summary: List outfits
+      responses:
+        '200':
+          description: ok
+    post:
+      tags: [admin-outfits]
+      operationId: createOutfit
+      summary: Create outfit
+      responses:
+        '201':
+          description: created
+  /admin/outfits/{outfit_id}:
+    patch:
+      tags: [admin-outfits]
+      operationId: updateOutfit
+      summary: Update outfit
+      parameters:
+        - in: path
+          name: outfit_id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: ok
+    delete:
+      tags: [admin-outfits]
+      operationId: deleteOutfit
+      summary: Delete outfit
+      parameters:
+        - in: path
+          name: outfit_id
+          required: true
+          schema: { type: string }
+      responses:
+        '204':
+          description: deleted
+
+  /admin/store-settings:
+    get:
+      tags: [admin-settings]
+      operationId: getStoreSettings
+      summary: Get current store settings
+      responses:
+        '200':
+          description: ok
+    patch:
+      tags: [admin-settings]
+      operationId: updateStoreSettings
+      summary: Update store settings
+      responses:
+        '200':
+          description: updated
+
+  /admin/dashboard/summary:
+    get:
+      tags: [admin-dashboard]
+      operationId: getDashboardSummary
+      responses:
+        '200':
+          description: ok
+  /admin/dashboard/top3:
+    get:
+      tags: [admin-dashboard]
+      operationId: getDashboardTop3
+      responses:
+        '200':
+          description: ok
+  /admin/dashboard/tpo-ratio:
+    get:
+      tags: [admin-dashboard]
+      operationId: getDashboardTpoRatio
+      responses:
+        '200':
+          description: ok
+  /admin/dashboard/low-stock:
+    get:
+      tags: [admin-dashboard]
+      operationId: getDashboardLowStock
+      responses:
+        '200':
+          description: ok
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -1,0 +1,191 @@
+openapi: 3.1.0
+info:
+  title: CoordiPick User API
+  version: 0.1.0
+servers:
+  - url: /api/v1
+tags:
+  - name: recommendations
+  - name: events
+paths:
+  /recommendations/generate:
+    post:
+      tags: [recommendations]
+      summary: Generate outfit recommendations
+      operationId: generateRecommendations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateRecommendationRequest'
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecommendationListResponse'
+        '400':
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /recommendations/{recommendation_id}:
+    get:
+      tags: [recommendations]
+      summary: Get recommendation detail
+      operationId: getRecommendationDetail
+      parameters:
+        - in: path
+          name: recommendation_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecommendationDetailResponse'
+        '404':
+          description: not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /events:
+    post:
+      tags: [events]
+      summary: Collect user interaction events
+      operationId: createEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEventRequest'
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSimpleResponse'
+components:
+  schemas:
+    EnvelopeSimpleResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+    ErrorResponse:
+      type: object
+      required: [success, error]
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            details: { type: object, additionalProperties: true }
+    GenerateRecommendationRequest:
+      type: object
+      required: [session_id, gender, tpo, temperature_c]
+      properties:
+        session_id: { type: string }
+        gender:
+          type: string
+          enum: [male, female, unisex]
+        tpo:
+          type: string
+          enum: [commute, date, friends, travel, daily, special]
+        mood:
+          type: string
+        temperature_c:
+          type: number
+    RecommendationCard:
+      type: object
+      required: [recommendation_id, title, total_price_krw, thumbnail_url]
+      properties:
+        recommendation_id: { type: string }
+        title: { type: string }
+        subtitle: { type: string }
+        total_price_krw: { type: integer }
+        thumbnail_url: { type: string, format: uri }
+        reason_tags:
+          type: array
+          items: { type: string }
+    RecommendationListResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          required: [cards]
+          properties:
+            cards:
+              type: array
+              minItems: 1
+              maxItems: 6
+              items:
+                $ref: '#/components/schemas/RecommendationCard'
+        meta:
+          type: object
+          properties:
+            generated_at: { type: string, format: date-time }
+    OutfitItem:
+      type: object
+      required: [item_id, name, slot, price_krw, image_url]
+      properties:
+        item_id: { type: string }
+        name: { type: string }
+        slot:
+          type: string
+          enum: [top, bottom, outer, shoes, acc]
+        price_krw: { type: integer }
+        location_zone: { type: string }
+        image_url: { type: string, format: uri }
+    RecommendationDetailResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          required: [recommendation_id, title, total_price_krw, items]
+          properties:
+            recommendation_id: { type: string }
+            title: { type: string }
+            subtitle: { type: string }
+            total_price_krw: { type: integer }
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/OutfitItem'
+    CreateEventRequest:
+      type: object
+      required: [session_id, event_type, recommendation_id]
+      properties:
+        session_id: { type: string }
+        event_type:
+          type: string
+          enum: [impression, click, detail_view]
+        recommendation_id: { type: string }
+        payload:
+          type: object
+          additionalProperties: true
